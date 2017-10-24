@@ -9,6 +9,10 @@ logger is a C++ light weight yet fast log library.
 - Log rolling only supported by time interval(`ONE_HOUR, TWO_HOURS, HALF_DAY, A_DAY`)
 - Multiple log files simultaneously
 
+## Supported platform
+- Unix/linux
+- others not tested
+
 ## Upcoming features:
 - Log rolling by size
 

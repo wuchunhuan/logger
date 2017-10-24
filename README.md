@@ -17,5 +17,21 @@ logger is a C++ light weight yet fast log library.
 - Log rolling by size
 
 ## Build
+### Prerequisites
+- cmake
+- c++11
 
+### Compile library
+```
+git clone https://github.com/heroperseus/logger.git
+
+cd logger
+mkdir build && cd build
+cmake ..
+make
+sudo make install
+```
+### Linking library
+```C++
 g++ test.cpp -std=c++11 -I. ./build/liblogger.a -lpthread
+```

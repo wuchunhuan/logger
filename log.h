@@ -58,6 +58,7 @@ namespace util {
             log_level m_level;
         };
 
+        void log_ln_internal(sink_id sk_id, const char* file, int line, const char* fun, const char *format, ...);
         void log_ld_internal(sink_id sk_id, const char* file, int line, const char* fun, const char *format, ...);
         void log_li_internal(sink_id sk_id, const char* file, int line, const char* fun, const char *format, ...);
         void log_lw_internal(sink_id sk_id, const char* file, int line, const char* fun, const char *format, ...);
@@ -83,23 +84,28 @@ namespace util {
 
         int log_close();
 
+#define slog_ln(sk_id) message(sk_id, NO_LEVEL, true, __FILE__, __LINE__, __FUNCTION__)
 #define slog_ld(sk_id) message(sk_id, DEBUG, true, __FILE__, __LINE__, __FUNCTION__)
 #define slog_li(sk_id) message(sk_id, INFO, true, __FILE__, __LINE__, __FUNCTION__)
 #define slog_lw(sk_id) message(sk_id, WARN, true, __FILE__, __LINE__, __FUNCTION__)
 #define slog_le(sk_id) message(sk_id, ERROR, true, __FILE__, __LINE__, __FUNCTION__)
 #define slog_lf(sk_id) message(sk_id, FATAL, true, __FILE__, __LINE__, __FUNCTION__)
 
+#define slog_n(sk_id) message(sk_id, NO_LEVEL, false, __FILE__, __LINE__, __FUNCTION__)
 #define slog_d(sk_id) message(sk_id, DEBUG, false, __FILE__, __LINE__, __FUNCTION__)
 #define slog_i(sk_id) message(sk_id, INFO, false, __FILE__, __LINE__, __FUNCTION__)
 #define slog_w(sk_id) message(sk_id, WARN, false, __FILE__, __LINE__, __FUNCTION__)
 #define slog_e(sk_id) message(sk_id, ERROR, false, __FILE__, __LINE__, __FUNCTION__)
 #define slog_f(sk_id) message(sk_id, FATAL, false, __FILE__, __LINE__, __FUNCTION__)
 
+#define log_ln(sk_id, fmt, ...) log_ln_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
 #define log_ld(sk_id, fmt, ...) log_ld_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
 #define log_li(sk_id, fmt, ...) log_li_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
 #define log_lw(sk_id, fmt, ...) log_lw_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
 #define log_le(sk_id, fmt, ...) log_le_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
 #define log_lf(sk_id, fmt, ...) log_lf_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
+
+        void log_n(sink_id sk_id, const char *format, ...);
 
         void log_d(sink_id sk_id, const char *format, ...);
 

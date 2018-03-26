@@ -301,9 +301,9 @@ namespace util {
             char string1[128] = {0};
             localtime_r(&m_last_sharp_time, &vtm);
             strftime(string1, 128, "%Y%m%d%H", &vtm);
-            string new_file_name = it->second.sk.log_file + string1;
+            string new_file_name = it->second.sk.log_file + "." + string1;
 #ifdef USE_BOOST
-            rename(path(m_log_path), path(new_file_name));
+            rename(path(it->second.sk.log_file), path(new_file_name));
 #else
             rename(it->second.sk.log_file.c_str(), new_file_name.c_str());
 #endif
@@ -338,7 +338,7 @@ namespace util {
             if (it == sinkers.end()) {
 
 #ifdef USE_BOOST
-                path p(log_path);
+                path p(sk.log_file);
                 if (!exists(p.parent_path())) {
                     create_directories(p.parent_path());
                 }
@@ -452,8 +452,13 @@ namespace util {
 
             strftime(string1, 128, "%Y-%m-%d %H:%M:%S", Time);
             std::stringstream prefix;
-            prefix << string1 << " [" << level << " ";
-            prefix << file << ":" << line << ":" << fun << "]: ";
+            if (level.empty()) {
+                prefix << string1 << " [";
+                prefix << file << ":" << line << ":" << fun << "]: ";
+            } else {
+                prefix << string1 << " [" << level << " ";
+                prefix << file << ":" << line << ":" << fun << "]: ";
+            }
             return prefix.str();
         }
 
@@ -466,7 +471,11 @@ namespace util {
 
             strftime(string1, 128, "%Y-%m-%d %H:%M:%S", Time);
             std::stringstream prefix;
-            prefix << string1 << " [" << level << "]: ";
+            if (level.empty()) {
+                prefix << string1 << " ";
+            } else {
+                prefix << string1 << " [" << level << "]: ";
+            }
             return prefix.str();
         }
 
@@ -484,6 +493,9 @@ namespace util {
             if (logger::get_instance()->get_stat() && m_level >= logger::get_instance()->get_level(m_sk_id)) {
                 std::string lstr;
                 switch (level) {
+                    case NO_LEVEL:
+                        lstr = "";
+                        break;
                     case DEBUG:
                         lstr = "DEBUG";
                         break;
@@ -673,6 +685,16 @@ namespace util {
             return logger::get_instance()->close();
         }
 
+        void log_ln_internal(sink_id sk_id, const char* file, int line, const char* fun, const char *format, ...) {
+            va_list arg;
+            va_start (arg, format);
+            if (logger::get_instance()->get_stat() && ::util::log::NO_LEVEL >= logger::get_instance()->get_level(sk_id)) {
+                string prefix = logger::get_instance()->get_lprefix("", file, line, fun);
+                logger::get_instance()->log_internal(sk_id, prefix.c_str(), format, arg);
+            }
+            va_end (arg);
+        }
+
         void log_ld_internal(sink_id sk_id, const char* file, int line, const char* fun, const char *format, ...) {
             va_list arg;
             va_start (arg, format);
@@ -718,6 +740,16 @@ namespace util {
             va_start (arg, format);
             if (logger::get_instance()->get_stat() && ::util::log::FATAL >= logger::get_instance()->get_level(sk_id)) {
                 string prefix = logger::get_instance()->get_lprefix("FATAL", file, line, fun);
+                logger::get_instance()->log_internal(sk_id, prefix.c_str(), format, arg);
+            }
+            va_end (arg);
+        }
+
+        void log_n(sink_id sk_id, const char *format, ...) {
+            va_list arg;
+            va_start (arg, format);
+            if (logger::get_instance()->get_stat() && ::util::log::NO_LEVEL >= logger::get_instance()->get_level(sk_id)) {
+                string prefix = logger::get_instance()->get_prefix("");
                 logger::get_instance()->log_internal(sk_id, prefix.c_str(), format, arg);
             }
             va_end (arg);

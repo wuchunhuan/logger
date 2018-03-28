@@ -166,6 +166,7 @@ namespace util {
         typedef struct sinker_internal_ {
             sinker sk;
             std::ofstream* m_ofs;
+            time_t m_last_sharp_time;
         } sinker_internal;
 
         class logger {
@@ -217,7 +218,7 @@ namespace util {
             std::shared_ptr<std::thread> m_thread;
 #endif
 //            split_interval m_split_interval;
-            time_t m_last_sharp_time;
+//            time_t m_last_sharp_time;
 //            string m_log_path;
 //            std::ofstream m_ofs;
 //            log_level m_level;
@@ -230,8 +231,8 @@ namespace util {
 
         logger::logger()
             : m_initialized(false),
-              m_enabled(0),
-              m_last_sharp_time(0) {
+              m_enabled(0)/*,
+              m_last_sharp_time(0)*/ {
         }
 
         logger *logger::get_instance() {
@@ -286,7 +287,7 @@ namespace util {
                 return -1;
             }
 
-            if (now - m_last_sharp_time < it->second.sk.interval) {
+            if (now - it->second.m_last_sharp_time < it->second.sk.interval) {
                 return 0;
             }
 
@@ -294,12 +295,12 @@ namespace util {
             it->second.m_ofs->close();
 
             time_t tt = last_sharp_time();
-            if (tt == m_last_sharp_time) {
+            if (tt == it->second.m_last_sharp_time) {
                 return 0;
             }
 
             char string1[128] = {0};
-            localtime_r(&m_last_sharp_time, &vtm);
+            localtime_r(&(it->second.m_last_sharp_time), &vtm);
             strftime(string1, 128, "%Y%m%d%H", &vtm);
             string new_file_name = it->second.sk.log_file + "." + string1;
 #ifdef USE_BOOST
@@ -308,7 +309,7 @@ namespace util {
             rename(it->second.sk.log_file.c_str(), new_file_name.c_str());
 #endif
 
-            m_last_sharp_time = tt;
+            it->second.m_last_sharp_time = tt;
 
             //3.open new log file
             it->second.m_ofs->open(it->second.sk.log_file.c_str(), ios_base::out | ios_base::app);
@@ -358,6 +359,7 @@ namespace util {
                 sinker_internal sk_i;
                 sk_i.sk = sk;
                 sk_i.m_ofs = new std::ofstream;
+                sk_i.m_last_sharp_time = last_sharp_time();
                 if (sk_i.m_ofs == NULL) {
                     return false;
                 }
@@ -395,7 +397,7 @@ namespace util {
             }
 
             m_enabled = 1;
-            m_last_sharp_time = last_sharp_time();
+//            m_last_sharp_time = last_sharp_time();
 #ifdef USE_BOOST
             m_thread.reset(new boost::thread(bind(&logger::thread, this)));
 #else

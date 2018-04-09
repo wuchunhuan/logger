@@ -6,15 +6,14 @@ logger is a C++ light weight yet fast log library.
 - Multi-threaded supported
 - Modern C++-style stream API or old school function style API
 - Log level is supported(`DEBUG, INFO, WARN, ERROR, FATAL`)
-- Log rolling only supported by time interval(`ONE_HOUR, TWO_HOURS, HALF_DAY, A_DAY`)
+- Log rotating by time interval, file size, file lines are supported
 - Multiple log files simultaneously
 
 ## Supported platform
 - Unix/linux
-- others not tested
+- others are not tested
 
 ## Upcoming features:
-- Log rolling by size
 
 ## Build
 ### Prerequisites
@@ -33,5 +32,5 @@ sudo make install
 ```
 ### Linking library
 ```C++
-g++ test.cpp -std=c++11 -I. ./build/liblogger.a -lpthread
+g++ test.cpp -std=c++11 -I.. ../build/liblogger.a -lpthread
 ```

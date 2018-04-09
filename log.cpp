@@ -167,6 +167,7 @@ namespace util {
             sinker sk;
             std::ofstream* m_ofs;
             time_t m_last_sharp_time;
+            u_int64_t cur_line;
         } sinker_internal;
 
         class logger {
@@ -200,9 +201,15 @@ namespace util {
 
             time_t last_sharp_time();
 
-            int log_file_cut(sink_id sk_id);
+            int rotate_files(sink_id sk_id);
 
-            int rotate_files();
+            int rotate_by_lines(sinker_internal & sinker);
+
+            int rotate_by_size(sinker_internal & sinker);
+
+            int rotate_by_time(sinker_internal & sinker);
+
+//            int rotate_files();
 
             int sink(sink_id sk_id, std::string& msg);
 
@@ -267,7 +274,7 @@ namespace util {
             return tt;
         }
 
-        int logger::rotate_files() {
+        /*int logger::rotate_files() {
             int rst = 0;
             for (auto& i : sinkers) {
                 rst = log_file_cut(i.first);
@@ -276,46 +283,126 @@ namespace util {
                 }
             }
             return rst;
-        }
+        }*/
 
-        int logger::log_file_cut(sink_id sk_id) {
-            struct tm vtm;
-            time_t now = time(0);
-
+        int logger::rotate_files(sink_id sk_id) {
             auto it = sinkers.find(sk_id);
             if (it == sinkers.end()) {
                 return -1;
             }
 
-            if (now - it->second.m_last_sharp_time < it->second.sk.interval) {
+            int rst = -1;
+            switch (it->second.sk.s_type) {
+                case BY_TIME :
+                    rst = rotate_by_time(it->second);
+                    break;
+                case BY_SIZE :
+                    rst = rotate_by_size(it->second);
+                    break;
+                case BY_LINES :
+                    rst = rotate_by_lines(it->second);
+                    break;
+                default:
+                    break;
+            }
+            return rst;
+        }
+
+        int logger::rotate_by_lines(sinker_internal & sinker) {
+            if (sinker.cur_line < sinker.sk.lines) {
                 return 0;
             }
 
             //1.close old log file
-            it->second.m_ofs->close();
+            sinker.m_ofs->close();
+
+            //2.rename old log
+            struct tm vtm;
+            time_t now = time(0);
+            char string1[128] = {0};
+            localtime_r(&(now), &vtm);
+            strftime(string1, 128, "%Y%m%d%H%M%S", &vtm);
+            string new_file_name = sinker.sk.log_file + "." + string1;
+#ifdef USE_BOOST
+            rename(path(sinker.sk.log_file), path(new_file_name));
+#else
+            rename(sinker.sk.log_file.c_str(), new_file_name.c_str());
+#endif
+            //3.open new log file
+            sinker.m_ofs->open(sinker.sk.log_file.c_str(), ios_base::out | ios_base::app);
+            if (!sinker.m_ofs->is_open()) {
+                return -1;
+            }
+            sinker.cur_line = 0;
+
+            return 0;
+        }
+
+        int logger::rotate_by_size(sinker_internal & sinker) {
+            long cur_size = sinker.m_ofs->tellp();
+            if (cur_size < sinker.sk.size) {
+                return 0;
+            }
+
+            //1.close old log file
+            sinker.m_ofs->close();
+
+            //2.rename old log
+            struct tm vtm;
+            time_t now = time(0);
+            char string1[128] = {0};
+            localtime_r(&(now), &vtm);
+            strftime(string1, 128, "%Y%m%d%H%M%S", &vtm);
+            string new_file_name = sinker.sk.log_file + "." + string1;
+#ifdef USE_BOOST
+            rename(path(sinker.sk.log_file), path(new_file_name));
+#else
+            rename(sinker.sk.log_file.c_str(), new_file_name.c_str());
+#endif
+            //3.open new log file
+            sinker.m_ofs->open(sinker.sk.log_file.c_str(), ios_base::out | ios_base::app);
+            if (!sinker.m_ofs->is_open()) {
+                return -1;
+            }
+            sinker.cur_line = 0;
+
+            return 0;
+        }
+
+        int logger::rotate_by_time(sinker_internal & sinker) {
+            struct tm vtm;
+            time_t now = time(0);
+
+            if (now - sinker.m_last_sharp_time < sinker.sk.interval) {
+                return 0;
+            }
+
+            //1.close old log file
+            sinker.m_ofs->close();
 
             time_t tt = last_sharp_time();
-            if (tt == it->second.m_last_sharp_time) {
+            if (tt == sinker.m_last_sharp_time) {
                 return 0;
             }
 
             char string1[128] = {0};
-            localtime_r(&(it->second.m_last_sharp_time), &vtm);
+            localtime_r(&(sinker.m_last_sharp_time), &vtm);
             strftime(string1, 128, "%Y%m%d%H", &vtm);
-            string new_file_name = it->second.sk.log_file + "." + string1;
+            string new_file_name = sinker.sk.log_file + "." + string1;
 #ifdef USE_BOOST
-            rename(path(it->second.sk.log_file), path(new_file_name));
+            rename(path(sinker.sk.log_file), path(new_file_name));
 #else
-            rename(it->second.sk.log_file.c_str(), new_file_name.c_str());
+            rename(sinker.sk.log_file.c_str(), new_file_name.c_str());
 #endif
 
-            it->second.m_last_sharp_time = tt;
+            sinker.m_last_sharp_time = tt;
 
             //3.open new log file
-            it->second.m_ofs->open(it->second.sk.log_file.c_str(), ios_base::out | ios_base::app);
-            if (!it->second.m_ofs->is_open()) {
+            sinker.m_ofs->open(sinker.sk.log_file.c_str(), ios_base::out | ios_base::app);
+            if (!sinker.m_ofs->is_open()) {
                 return -1;
             }
+            sinker.cur_line = 0;
 
             return 0;
         }
@@ -329,11 +416,16 @@ namespace util {
             if (it->second.m_ofs->is_open()) {
                 *it->second.m_ofs << msg << endl;
                 it->second.m_ofs->flush();
+                it->second.cur_line++;
             }
             return 0;
         }
 
         bool logger::add_sinker(sinker& sk, sink_id& id) {
+            if (sk.log_file.empty()) {
+                return false;
+            }
+
             sink_id hash_id = std::hash<std::string>()(sk.log_file);
             auto it = sinkers.find(hash_id);
             if (it == sinkers.end()) {
@@ -360,6 +452,7 @@ namespace util {
                 sk_i.sk = sk;
                 sk_i.m_ofs = new std::ofstream;
                 sk_i.m_last_sharp_time = last_sharp_time();
+                sk_i.cur_line = 0;
                 if (sk_i.m_ofs == NULL) {
                     return false;
                 }
@@ -380,8 +473,11 @@ namespace util {
             do {
                 msg_data data;
                 bool rst = msgq.receive(data);
-                log_file_cut(data.sk_id);
-                if (rst) {
+                if (!rst) {
+                    continue;
+                }
+//                log_file_cut(data.sk_id);
+                if (rotate_files(data.sk_id) == 0) {
                     sink(data.sk_id, data.msg);
                 }
                 /*if (m_ofs.is_open() && rst) {

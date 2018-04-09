@@ -21,11 +21,58 @@ namespace util {
             A_DAY = 24 * ONE_HOUR
         } split_interval;
 
-        typedef struct sinker_ {
+        typedef enum split_size_ {
+            SIZE_1MB = 1024 * 1024,
+            SIZE_2MB = 2 * SIZE_1MB,
+            SIZE_10MB = 5 * SIZE_2MB
+        } split_size;
+
+        typedef enum split_type_ {
+            BY_TIME,
+            BY_SIZE,
+            BY_LINES
+        } split_type;
+
+        /*typedef struct sinker_ {
             log_level level;
+            split_type s_type;
             split_interval interval;
+            split_size size;
             std::string log_file;
-        } sinker;
+        } sinker;*/
+
+        class sinker {
+        public:
+            sinker()
+                : level(DEBUG),
+                  s_type(BY_TIME),
+                  interval(ONE_HOUR),
+                  size(SIZE_1MB),
+                  lines(100000),
+                  log_file("")
+            {
+            }
+
+            log_level level;
+            split_type s_type;
+            split_interval interval;
+            split_size size;
+            u_int64_t lines;
+            std::string log_file;
+
+//            sinker &operator=(const sinker &other) = default;
+
+            /*sinker &operator=(const sinker &other) {
+                level = other.level;
+                s_type = other.s_type;
+                interval = other.interval;
+                size = other.size;
+                lines = other.lines;
+                log_file = other.log_file;
+                return *this;
+            }*/
+
+        };
 
         class message {
         public:

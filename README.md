@@ -10,7 +10,7 @@ logger is a C++ light weight yet fast log library.
 - Multiple log files simultaneously
 
 ## Updates:
-###20190517
+### 20190517
 - Milliseconds in log timestamp supported
 - Custom prefix in log supported
 

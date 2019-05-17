@@ -131,6 +131,7 @@ namespace util {
 
         int log_close();
 
+#define slog_cs(sk_id, custom_prefix) message(sk_id, MAX_LEVEL, custom_prefix)
 #define slog_ln(sk_id) message(sk_id, NO_LEVEL, true, __FILE__, __LINE__, __FUNCTION__)
 #define slog_ld(sk_id) message(sk_id, DEBUG, true, __FILE__, __LINE__, __FUNCTION__)
 #define slog_li(sk_id) message(sk_id, INFO, true, __FILE__, __LINE__, __FUNCTION__)
@@ -151,6 +152,8 @@ namespace util {
 #define log_lw(sk_id, fmt, ...) log_lw_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
 #define log_le(sk_id, fmt, ...) log_le_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
 #define log_lf(sk_id, fmt, ...) log_lf_internal(sk_id, __FILE__, __LINE__, __FUNCTION__, fmt, ##__VA_ARGS__)
+
+        void log_cs(sink_id sk_id, const char *format, ...);
 
         void log_n(sink_id sk_id, const char *format, ...);
 

@@ -9,10 +9,13 @@ sink_id g_sk3_id;
 void f1() {
     while (1) {
         sleep(1);
-//        slog_d(g_sk1_id) << "Test log in f1";
-//        slog_li(g_sk1_id) << "Test log in f1";
-        log_d(g_sk1_id, "%s","Test log in f1");
-        log_lw(g_sk1_id, "%s","Test log in f1");
+        slog_d(g_sk1_id) << "Test log in f1";
+        slog_li(g_sk1_id) << "Test log in f1";
+		//slog_cs(g_sk1_id, "Hi there :)") << " Test log in f1";
+		slog_cs(g_sk1_id, "") << "Test log in f1";
+		log_cs(g_sk1_id, "[Danger] Test log in f1");
+        //log_d(g_sk1_id, "%s","Test log in f1");
+        //log_lw(g_sk1_id, "%s","Test log in f1");
     }
 }
 void f2() {

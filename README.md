@@ -9,6 +9,11 @@ logger is a C++ light weight yet fast log library.
 - Log rotating by time interval, file size, file lines are supported
 - Multiple log files simultaneously
 
+## Updates:
+###20190517
+- Milliseconds in log timestamp supported
+- Custom prefix in log supported
+
 ## Supported platform
 - Unix/linux
 - others are not tested

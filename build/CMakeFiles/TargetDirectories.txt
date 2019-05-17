@@ -1,0 +1,2 @@
+/home/wuchunhuan/code/github/logger/build/CMakeFiles/logger.dir
+/home/wuchunhuan/code/github/logger/build/CMakeFiles/logger_s.dir

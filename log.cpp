@@ -1,5 +1,6 @@
 #include <iostream>
 #include <time.h>
+#include <sys/timeb.h>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -542,37 +543,56 @@ namespace util {
         }
 
         string logger::get_lprefix(string level, const char* file, int line, const char* fun) {
-            char string1[128] = {0};
-            time_t Today;
-            tm *Time;
-            time(&Today);
-            Time = localtime(&Today);
+            //char string1[128] = {0};
+            //time_t Today;
+            //tm *Time;
+            //time(&Today);
+            //Time = localtime(&Today);
+			//strftime(string1, 128, "%Y-%m-%d %H:%M:%S", Time);
+            tm *ptm;
+			timeb st_timeb;
+            //char sz_time[19];
+			ftime(&st_timeb);
+			ptm = localtime(&st_timeb.time);
 
-            strftime(string1, 128, "%Y-%m-%d %H:%M:%S", Time);
             std::stringstream prefix;
+			prefix << ptm->tm_year + 1900 << "-" << ptm->tm_mon + 1 << "-" << ptm->tm_mday << " " 
+				<< ptm->tm_hour << ":" << ptm->tm_min << ":" << ptm->tm_sec << "."
+				<< st_timeb.millitm;
             if (level.empty()) {
-                prefix << string1 << " [";
+                prefix << " [";
                 prefix << file << ":" << line << ":" << fun << "]: ";
             } else {
-                prefix << string1 << " [" << level << " ";
+                prefix << " [" << level << " ";
                 prefix << file << ":" << line << ":" << fun << "]: ";
             }
             return prefix.str();
         }
 
         string logger::get_prefix(string level) {
-            char string1[128] = {0};
+            /*char string1[128] = {0};
             time_t Today;
             tm *Time;
             time(&Today);
             Time = localtime(&Today);
 
             strftime(string1, 128, "%Y-%m-%d %H:%M:%S", Time);
+			*/
+			
+            tm *ptm;
+			timeb st_timeb;
+            //char sz_time[19];
+			ftime(&st_timeb);
+			ptm = localtime(&st_timeb.time);
+
             std::stringstream prefix;
+			prefix << ptm->tm_year + 1900 << "-" << ptm->tm_mon + 1 << "-" << ptm->tm_mday << " " 
+				<< ptm->tm_hour << ":" << ptm->tm_min << ":" << ptm->tm_sec << "."
+				<< st_timeb.millitm;
             if (level.empty()) {
-                prefix << string1 << " ";
+                prefix << " ";
             } else {
-                prefix << string1 << " [" << level << "]: ";
+                prefix << " [" << level << "]: ";
             }
             return prefix.str();
         }
@@ -621,7 +641,7 @@ namespace util {
             }
             return;
         }
-
+		
         message::~message() {
 //#ifndef LOG_DISABLE
             if (logger::get_instance()->get_stat() && m_level >= logger::get_instance()->get_level(m_sk_id)) {
@@ -839,6 +859,15 @@ namespace util {
             if (logger::get_instance()->get_stat() && ::util::log::FATAL >= logger::get_instance()->get_level(sk_id)) {
                 string prefix = logger::get_instance()->get_lprefix("FATAL", file, line, fun);
                 logger::get_instance()->log_internal(sk_id, prefix.c_str(), format, arg);
+            }
+            va_end (arg);
+        }
+
+        void log_cs(sink_id sk_id, const char *format, ...) {
+            va_list arg;
+            va_start (arg, format);
+            if (logger::get_instance()->get_stat() && ::util::log::MAX_LEVEL >= logger::get_instance()->get_level(sk_id)) {
+                logger::get_instance()->log_internal(sk_id, "", format, arg);
             }
             va_end (arg);
         }

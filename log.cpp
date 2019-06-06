@@ -168,6 +168,7 @@ namespace util {
             sinker sk;
             std::ofstream* m_ofs;
             time_t m_last_sharp_time;
+            struct tm today_time_stamp;
             u_int64_t cur_line;
         } sinker_internal;
 
@@ -209,6 +210,8 @@ namespace util {
             int rotate_by_size(sinker_internal & sinker);
 
             int rotate_by_time(sinker_internal & sinker);
+
+            int rotate_by_date(sinker_internal & sinker);
 
 //            int rotate_files();
 
@@ -294,6 +297,9 @@ namespace util {
 
             int rst = -1;
             switch (it->second.sk.s_type) {
+                case BY_DATE :
+                    rst = rotate_by_date(it->second);
+                    break;
                 case BY_TIME :
                     rst = rotate_by_time(it->second);
                     break;
@@ -360,6 +366,39 @@ namespace util {
 #else
             rename(sinker.sk.log_file.c_str(), new_file_name.c_str());
 #endif
+            //3.open new log file
+            sinker.m_ofs->open(sinker.sk.log_file.c_str(), ios_base::out | ios_base::app);
+            if (!sinker.m_ofs->is_open()) {
+                return -1;
+            }
+            sinker.cur_line = 0;
+
+            return 0;
+        }
+
+        int logger::rotate_by_date(sinker_internal & sinker) {
+            struct tm vtm;
+            time_t now = time(0);
+            localtime_r(&(now), &vtm);
+
+            if (vtm.tm_year == sinker.today_time_stamp.tm_year && vtm.tm_yday == sinker.today_time_stamp.tm_yday) {
+                return 0;
+            }
+
+            //1.close old log file
+            sinker.m_ofs->close();
+
+            char string1[128] = {0};
+            strftime(string1, 128, "%Y%m%d", &(sinker.today_time_stamp));
+            string new_file_name = sinker.sk.log_file + "." + string1;
+#ifdef USE_BOOST
+            rename(path(sinker.sk.log_file), path(new_file_name));
+#else
+            rename(sinker.sk.log_file.c_str(), new_file_name.c_str());
+#endif
+
+            sinker.today_time_stamp = vtm;
+
             //3.open new log file
             sinker.m_ofs->open(sinker.sk.log_file.c_str(), ios_base::out | ios_base::app);
             if (!sinker.m_ofs->is_open()) {
@@ -454,6 +493,7 @@ namespace util {
                 sk_i.m_ofs = new std::ofstream;
                 sk_i.m_last_sharp_time = last_sharp_time();
                 sk_i.cur_line = 0;
+                localtime_r(&(sk_i.m_last_sharp_time), &(sk_i.today_time_stamp));
                 if (sk_i.m_ofs == NULL) {
                     return false;
                 }

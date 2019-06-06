@@ -28,6 +28,7 @@ namespace util {
         } split_size;
 
         typedef enum split_type_ {
+            BY_DATE,
             BY_TIME,
             BY_SIZE,
             BY_LINES

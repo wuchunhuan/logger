@@ -590,15 +590,19 @@ namespace util {
             //Time = localtime(&Today);
 			//strftime(string1, 128, "%Y-%m-%d %H:%M:%S", Time);
             tm *ptm;
-			timeb st_timeb;
+            timeb st_timeb;
             //char sz_time[19];
-			ftime(&st_timeb);
-			ptm = localtime(&st_timeb.time);
+            ftime(&st_timeb);
+            ptm = localtime(&st_timeb.time);
 
             std::stringstream prefix;
-			prefix << ptm->tm_year + 1900 << "-" << ptm->tm_mon + 1 << "-" << ptm->tm_mday << " " 
-				<< ptm->tm_hour << ":" << ptm->tm_min << ":" << ptm->tm_sec << "."
-				<< st_timeb.millitm;
+            prefix << ptm->tm_year + 1900 << "-"
+                   << std::setfill('0') << std::setw(2) << ptm->tm_mon + 1 << "-"
+                   << std::setfill('0') << std::setw(2) << ptm->tm_mday << " "
+                   << std::setfill('0') << std::setw(2) << ptm->tm_hour << ":"
+                   << std::setfill('0') << std::setw(2) << ptm->tm_min << ":"
+                   << std::setfill('0') << std::setw(2) << ptm->tm_sec << "."
+                   << std::setfill('0') << std::setw(3) << st_timeb.millitm;
             if (level.empty()) {
                 prefix << " [";
                 prefix << file << ":" << line << ":" << fun << "]: ";
@@ -620,15 +624,19 @@ namespace util {
 			*/
 			
             tm *ptm;
-			timeb st_timeb;
+            timeb st_timeb;
             //char sz_time[19];
-			ftime(&st_timeb);
-			ptm = localtime(&st_timeb.time);
+            ftime(&st_timeb);
+            ptm = localtime(&st_timeb.time);
 
             std::stringstream prefix;
-			prefix << ptm->tm_year + 1900 << "-" << ptm->tm_mon + 1 << "-" << ptm->tm_mday << " " 
-				<< ptm->tm_hour << ":" << ptm->tm_min << ":" << ptm->tm_sec << "."
-				<< st_timeb.millitm;
+            prefix << ptm->tm_year + 1900 << "-"
+                   << std::setfill('0') << std::setw(2) << ptm->tm_mon + 1 << "-"
+                   << std::setfill('0') << std::setw(2) << ptm->tm_mday << " "
+                   << std::setfill('0') << std::setw(2) << ptm->tm_hour << ":"
+                   << std::setfill('0') << std::setw(2) << ptm->tm_min << ":"
+                   << std::setfill('0') << std::setw(2) << ptm->tm_sec << "."
+                   << std::setfill('0') << std::setw(3) << st_timeb.millitm;
             if (level.empty()) {
                 prefix << " ";
             } else {

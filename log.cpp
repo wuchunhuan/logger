@@ -3,6 +3,7 @@
 #include <sys/timeb.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <iomanip>
 
 #ifdef USE_BOOST
 #include <boost/filesystem.hpp>

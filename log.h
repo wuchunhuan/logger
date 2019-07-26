@@ -88,6 +88,8 @@ namespace util {
             message& operator<<(unsigned int val);
             message& operator<<(long val);
             message& operator<<(unsigned long val);
+            message& operator<<(long long val);
+            message& operator<<(unsigned long long val);
             message& operator<<(float val);
             message& operator<<(double val);
             message& operator<<(long double val);

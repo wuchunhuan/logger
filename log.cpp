@@ -755,6 +755,20 @@ namespace util {
             return *this;
         }
 
+        message &message::operator<<(long long val) {
+            if (logger::get_instance()->get_stat() && m_level >= logger::get_instance()->get_level(m_sk_id)) {
+                m_sbuf << val;
+            }
+            return *this;
+        }
+
+        message &message::operator<<(unsigned long long val) {
+            if (logger::get_instance()->get_stat() && m_level >= logger::get_instance()->get_level(m_sk_id)) {
+                m_sbuf << val;
+            }
+            return *this;
+        }
+
         message &message::operator<<(float val) {
             if (logger::get_instance()->get_stat() && m_level >= logger::get_instance()->get_level(m_sk_id)) {
                 m_sbuf << val;

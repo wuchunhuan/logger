@@ -590,19 +590,21 @@ namespace util {
             //time(&Today);
             //Time = localtime(&Today);
 			//strftime(string1, 128, "%Y-%m-%d %H:%M:%S", Time);
-            tm *ptm;
+            //tm *ptm;
             timeb st_timeb;
             //char sz_time[19];
             ftime(&st_timeb);
-            ptm = localtime(&st_timeb.time);
+            //ptm = localtime(&st_timeb.time);
+            struct tm now_time;
+            localtime_r(&st_timeb.time, &now_time);
 
             std::stringstream prefix;
-            prefix << ptm->tm_year + 1900 << "-"
-                   << std::setfill('0') << std::setw(2) << ptm->tm_mon + 1 << "-"
-                   << std::setfill('0') << std::setw(2) << ptm->tm_mday << " "
-                   << std::setfill('0') << std::setw(2) << ptm->tm_hour << ":"
-                   << std::setfill('0') << std::setw(2) << ptm->tm_min << ":"
-                   << std::setfill('0') << std::setw(2) << ptm->tm_sec << "."
+            prefix << now_time.tm_year + 1900 << "-"
+                   << std::setfill('0') << std::setw(2) << now_time.tm_mon + 1 << "-"
+                   << std::setfill('0') << std::setw(2) << now_time.tm_mday << " "
+                   << std::setfill('0') << std::setw(2) << now_time.tm_hour << ":"
+                   << std::setfill('0') << std::setw(2) << now_time.tm_min << ":"
+                   << std::setfill('0') << std::setw(2) << now_time.tm_sec << "."
                    << std::setfill('0') << std::setw(3) << st_timeb.millitm;
             if (level.empty()) {
                 prefix << " [";
@@ -624,19 +626,21 @@ namespace util {
             strftime(string1, 128, "%Y-%m-%d %H:%M:%S", Time);
 			*/
 			
-            tm *ptm;
+            //tm *ptm;
             timeb st_timeb;
             //char sz_time[19];
             ftime(&st_timeb);
-            ptm = localtime(&st_timeb.time);
+            //ptm = localtime(&st_timeb.time);
+            struct tm now_time;
+            localtime_r(&st_timeb.time, &now_time);
 
             std::stringstream prefix;
-            prefix << ptm->tm_year + 1900 << "-"
-                   << std::setfill('0') << std::setw(2) << ptm->tm_mon + 1 << "-"
-                   << std::setfill('0') << std::setw(2) << ptm->tm_mday << " "
-                   << std::setfill('0') << std::setw(2) << ptm->tm_hour << ":"
-                   << std::setfill('0') << std::setw(2) << ptm->tm_min << ":"
-                   << std::setfill('0') << std::setw(2) << ptm->tm_sec << "."
+            prefix << now_time.tm_year + 1900 << "-"
+                   << std::setfill('0') << std::setw(2) << now_time.tm_mon + 1 << "-"
+                   << std::setfill('0') << std::setw(2) << now_time.tm_mday << " "
+                   << std::setfill('0') << std::setw(2) << now_time.tm_hour << ":"
+                   << std::setfill('0') << std::setw(2) << now_time.tm_min << ":"
+                   << std::setfill('0') << std::setw(2) << now_time.tm_sec << "."
                    << std::setfill('0') << std::setw(3) << st_timeb.millitm;
             if (level.empty()) {
                 prefix << " ";

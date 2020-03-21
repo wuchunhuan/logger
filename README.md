@@ -1,4 +1,5 @@
 # logger
+[![LICENSE](https://img.shields.io/badge/License-MIT-red)](./LICENSE)
 ## Intro
 logger is a C++ light weight yet fast log library.
 

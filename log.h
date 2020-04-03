@@ -34,6 +34,11 @@ namespace util {
             BY_LINES
         } split_type;
 
+        typedef enum sink_type_ {
+            BY_LINE,
+            BY_BUF_SIZE
+        } sink_type;
+
         /*typedef struct sinker_ {
             log_level level;
             split_type s_type;
@@ -47,6 +52,8 @@ namespace util {
             sinker()
                 : level(DEBUG),
                   s_type(BY_TIME),
+                  sk_type(BY_LINE),
+                  sink_buf_size(0),
                   interval(ONE_HOUR),
                   size(SIZE_1MB),
                   lines(100000),
@@ -56,6 +63,8 @@ namespace util {
 
             log_level level;
             split_type s_type;
+            sink_type sk_type;
+            u_int32_t sink_buf_size;
             split_interval interval;
             split_size size;
             u_int64_t lines;
@@ -173,3 +182,4 @@ namespace util {
 }
 
 #endif //LOG_H
+

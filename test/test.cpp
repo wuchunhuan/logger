@@ -61,13 +61,16 @@ int main() {
     sk1.level = ::util::log::DEBUG;
 
     sk2.s_type = ::util::log::BY_LINES;
+    sk2.sk_type = ::util::log::BY_BUF_SIZE;
+    sk2.sink_buf_size = 1024;
     sk2.log_file = "./log/line.stat";
-    sk2.lines = 50;
+    sk2.lines = 5000;
     sk2.level = ::util::log::DEBUG;
 
     sk3.s_type = ::util::log::BY_SIZE;
+    sk3.sk_type = ::util::log::BY_LINE;
     sk3.log_file = "./log/size.stat";
-    sk3.size = (split_size)2000;
+    sk3.size = (split_size)200000;
     sk3.level = ::util::log::DEBUG;
 
     sk4.s_type = ::util::log::BY_DATE;
@@ -90,3 +93,4 @@ int main() {
     return 0;
 
 }
+

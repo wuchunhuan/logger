@@ -9,8 +9,13 @@ logger is a C++ light weight yet fast log library.
 - Log level is supported(`DEBUG, INFO, WARN, ERROR, FATAL`)
 - Log rotating by time interval, file size, file lines are supported
 - Multiple log files simultaneously
+- Support IO options, log data will be flushed to file according to sink type parameters (`BY_LINE, BY_BUF_SIZE`)
 
 ## Updates:
+
+### 20200403 
+- Support IO options 
+
 ### 20190517
 - Milliseconds in log timestamp supported
 - Custom prefix in log supported

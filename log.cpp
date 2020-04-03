@@ -168,6 +168,8 @@ namespace util {
         typedef struct sinker_internal_ {
             sinker sk;
             std::ofstream* m_ofs;
+            char* stream_buf;
+            u_int32_t stream_buf_size;
             time_t m_last_sharp_time;
             struct tm today_time_stamp;
             u_int64_t cur_line;
@@ -455,8 +457,12 @@ namespace util {
             }
 
             if (it->second.m_ofs->is_open()) {
-                *it->second.m_ofs << msg << endl;
-                it->second.m_ofs->flush();
+                *it->second.m_ofs << msg << "\n";
+                //*it->second.m_ofs << msg << endl;
+                //it->second.m_ofs->flush();
+                if (it->second.sk.sk_type == BY_LINE) {
+                    it->second.m_ofs->flush();
+                }
                 it->second.cur_line++;
             }
             return 0;
@@ -492,12 +498,17 @@ namespace util {
                 sinker_internal sk_i;
                 sk_i.sk = sk;
                 sk_i.m_ofs = new std::ofstream;
-                sk_i.m_last_sharp_time = last_sharp_time();
-                sk_i.cur_line = 0;
-                localtime_r(&(sk_i.m_last_sharp_time), &(sk_i.today_time_stamp));
                 if (sk_i.m_ofs == NULL) {
                     return false;
                 }
+                if (sk.sink_buf_size > 0) {
+                    sk_i.stream_buf_size = sk.sink_buf_size;
+                    sk_i.stream_buf = new char[sk_i.stream_buf_size];
+                    sk_i.m_ofs->rdbuf()->pubsetbuf(sk_i.stream_buf, sk_i.stream_buf_size);
+                }
+                sk_i.m_last_sharp_time = last_sharp_time();
+                sk_i.cur_line = 0;
+                localtime_r(&(sk_i.m_last_sharp_time), &(sk_i.today_time_stamp));
                 sk_i.m_ofs->open(sk.log_file.c_str(), ios_base::out | ios_base::app);
                 if (!sk_i.m_ofs->is_open()) {
                     return false;
@@ -558,6 +569,7 @@ namespace util {
                 if (i.second.m_ofs->is_open()) {
                     i.second.m_ofs->close();
                     delete i.second.m_ofs;
+                    delete i.second.stream_buf;
                 }
             }
             m_initialized = false;
@@ -1000,5 +1012,6 @@ namespace util {
         }
     }
 }
+
 
 

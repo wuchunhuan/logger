@@ -497,6 +497,7 @@ namespace util {
 
                 sinker_internal sk_i;
                 sk_i.sk = sk;
+                sk_i.m_ofs = NULL;
                 sk_i.m_ofs = new std::ofstream;
                 if (sk_i.m_ofs == NULL) {
                     return false;
@@ -505,6 +506,9 @@ namespace util {
                     sk_i.stream_buf_size = sk.sink_buf_size;
                     sk_i.stream_buf = new char[sk_i.stream_buf_size];
                     sk_i.m_ofs->rdbuf()->pubsetbuf(sk_i.stream_buf, sk_i.stream_buf_size);
+                } else {
+                    sk_i.stream_buf_size = 0;
+                    sk_i.stream_buf = NULL;
                 }
                 sk_i.m_last_sharp_time = last_sharp_time();
                 sk_i.cur_line = 0;
@@ -568,8 +572,12 @@ namespace util {
             for (auto i : sinkers) {
                 if (i.second.m_ofs->is_open()) {
                     i.second.m_ofs->close();
-                    delete i.second.m_ofs;
-                    delete i.second.stream_buf;
+                    if (i.second.m_ofs != NULL) {
+                        delete i.second.m_ofs;
+                    }
+                    if (i.second.stream_buf != NULL) {
+                        delete i.second.stream_buf;
+                    }
                 }
             }
             m_initialized = false;
